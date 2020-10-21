@@ -36,21 +36,18 @@ namespace Services
                 Payload = vm
             };
         }
-        
+
         public async Task<UpdateMemberCommandResult> UpdateMemberCommandHandler(UpdateMemberCommand command)
         {
-            var isSucceed = true;
             var member = await _memberRepository.ByIdAsync(command.Id);
 
-            _mapper.Map<UpdateMemberCommand,Member>(command, member);
-            
+            _mapper.Map<UpdateMemberCommand, Member>(command, member);
+
             var affectedRecordsCount = await _memberRepository.UpdateRecordAsync(member);
 
-            if (affectedRecordsCount < 1)
-                isSucceed = false;
-
-            return new UpdateMemberCommandResult() { 
-               Succeed = isSucceed
+            return new UpdateMemberCommandResult()
+            {
+                Succeed = affectedRecordsCount < 1
             };
         }
 
@@ -63,7 +60,8 @@ namespace Services
             if (members != null && members.Any())
                 vm = _mapper.Map<IEnumerable<MemberVm>>(members);
 
-            return new GetAllMembersQueryResult() { 
+            return new GetAllMembersQueryResult()
+            {
                 Payload = vm
             };
         }

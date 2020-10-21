@@ -29,17 +29,7 @@ namespace Services
         public async Task<CreateTaskCommandResult> CreateTaskCommandHandler(CreateTaskCommand command)
         {
             var task = _mapper.Map<FamilyTask>(command);
-            var persistedMember = default(FamilyTask);
-            try
-            {
-                persistedMember = await _taskRepository.CreateRecordAsync(task);
-            }
-            catch (System.Exception ex)
-            {
-
-                throw;
-            }
-
+            var persistedMember = await _taskRepository.CreateRecordAsync(task);
             var result = _mapper.Map<TaskVm>(persistedMember);
 
             return new CreateTaskCommandResult
@@ -50,21 +40,15 @@ namespace Services
 
         public async Task<UpdateTaskCommandResult> UpdateTaskCommandHandler(UpdateTaskCommand command)
         {
-            var isSucceed = true;
             var member = await _taskRepository.ByIdAsync(command.Id);
 
             _mapper.Map(command, member);
 
             var affectedRecordsCount = await _taskRepository.UpdateRecordAsync(member);
 
-            if (affectedRecordsCount < 1)
-            {
-                isSucceed = false;
-            }
-
             return new UpdateTaskCommandResult()
             {
-                Succeeded = isSucceed
+                Succeeded = affectedRecordsCount < 1
             };
         }
 

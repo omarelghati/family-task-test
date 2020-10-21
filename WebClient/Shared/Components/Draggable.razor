@@ -13,19 +13,11 @@
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("initialized");
         base.OnInitialized();
     }
 
     public void Dragstart()
     {
-        Console.WriteLine("Something happened");
-        // Notify the DragAndDropService what the current Data and Zone are.
         DragAndDropService.StartDrag(Data);
-    }
-
-    private void Dragend()
-    {
-        Console.WriteLine("end");
     }
 }

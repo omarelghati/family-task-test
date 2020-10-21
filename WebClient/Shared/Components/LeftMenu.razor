@@ -206,9 +206,7 @@
 
     void OnDrop(Domain.ViewModel.TaskVm data, Guid assignedTo)
     {
-        Console.WriteLine($"{data.Subject} will be assigned to {assignedTo}");
         taskService.AssignTask(data, assignedTo);
-        // Important: Invoke StateHasChanged() to update the page
         StateHasChanged();
     }
 }
