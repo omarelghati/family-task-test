@@ -1,13 +1,31 @@
+@using Core.Extensions.ModelConversion
 @using WebClient.Abstractions
 @using WebClient.Shared.Models
 @using Domain.ViewModel
+@using Core.Extensions
 
-@inject ITaskDataService taskService;
-@inject IMemberDataService memberService;
+@inject ITaskDataService taskService
+@inject IMemberDataService memberService
 
 @namespace WebClient.Components
 
 <style>
+    .draggable {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 1rem;
+        padding: 1rem;
+        display: inline-block;
+        cursor: move;
+    }
+
+    .drop-target {
+        border: 1px dashed #ebebeb;
+        margin: 1rem;
+        padding: 1rem;
+        display: inline-block;
+    }
+
     .task-wrapper .task-item {
         background: #FFFFFF;
         border: 1px solid #C5C9C9;
@@ -16,26 +34,32 @@
         font-size: 24px;
         font-family: "Poppins Light";
     }
+
     .done-text {
         text-decoration: line-through;
     }
+
     .task-wrapper .avtar {
         width: 32px;
         height: 32px;
         border-radius: 50%;
     }
-    @@media(max-width: 1400px) { 
-        .task-wrapper .task-item { 
+
+    @@media(max-width: 1400px) {
+        .task-wrapper .task-item {
             font-size: 16px;
         }
+
         .task-wrapper .avtar {
             width: 24px;
             height: 24px;
         }
+
         .delete-icon {
             width: 25px;
         }
     }
+
     @@media(max-width: 767.98px) {
         .task-wrapper .avtar {
             width: 16px;
@@ -43,39 +67,46 @@
         }
     }
 </style>
-
 <div class="task-wrapper">
     @foreach (var item in tasks)
     {
-        <div class="task-item p-3 my-3 row m-0">
-            <div class="col-10 p-0">
-                <Check TValue="bool" Checked="@item.IsDone" CheckedChanged="@(val => ToggleTask(item))">
-                    <span class="@(item.IsDone ? "done-text" : "")">@item.Text</span>
-                </Check>
+        <Draggable Data="item">
+            <div class="task-item p-3 my-3 row m-0">
+                <div class="col-10 p-0">
+                    <Check TValue="bool" Checked="@item.IsComplete" CheckedChanged="@(val => ToggleTask(item))">
+                        <span class="@(item.IsComplete ? "done-text" : "")">@item.Subject</span>
+                    </Check>
+                </div>
+
+                <div class="col-2 p-0 d-flex justify-content-end align-items-center">
+                    @if (item.AssignedMemberId.NotNullNorEmpty())
+                    {
+                        <div class="avtar mr-1" style="background-color: @item.AssignedMember.Avatar;"></div>
+                    }
+                    <img class="delete-icon" src="/assets/images/delete-icon.svg" />
+                </div>
+
             </div>
-            <div class="col-2 p-0 d-flex justify-content-end align-items-center">
-                @if (item.Member != null) {
-                    <div class="avtar mr-1" style="background-color: @selectedMember.Avatar;"></div>
-                }
-                <img class="delete-icon" src="/assets/images/delete-icon.svg"/>
-            </div>
-        </div>
+        </Draggable>
     }
 </div>
 
 @code  {
-    private List<TaskModel> tasks = new List<TaskModel>();
+    private List<TaskVm> tasks = new List<TaskVm>();
+    private List<MemberVm> members = new List<MemberVm>();
     private MemberVm selectedMember;
 
+    bool firstTime = true;
     protected override Task OnInitializedAsync()
     {
         memberService.SelectedMemberChanged += MemberServiceOnSelectedMemberChanged;
         taskService.TasksUpdated += TaskServiceOnTasksUpdated;
         LoadCurrentTasks();
+        //memberService.MembersChanged += MemberServiceOnMembersChanged;
         return base.OnInitializedAsync();
     }
 
-    private void ToggleTask(TaskModel model)
+    private void ToggleTask(TaskVm model)
     {
         taskService.ToggleTask(model.Id);
         StateHasChanged();
@@ -102,8 +133,13 @@
             return;
         };
 
-        tasks = taskService.Tasks.Where(t => t.Member == selectedMember.Id).ToList();
+        tasks = taskService.Tasks.Where(t => t.AssignedMemberId == selectedMember.Id).ToList();
         StateHasChanged();
     }
 
+    private void MemberServiceOnMembersChanged(object sender, EventArgs e)
+    {
+        //members = memberService.Members;
+        //StateHasChanged();
+    }
 }

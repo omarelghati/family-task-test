@@ -15,7 +15,12 @@ namespace WebApi.AutoMapper
         {
             CreateMap<CreateMemberCommand, Member>();
             CreateMap<UpdateMemberCommand, Member>();
+
+            CreateMap<CreateTaskCommand, FamilyTask>();
+            CreateMap<UpdateTaskCommand, FamilyTask>();
+
             CreateMap<Member, MemberVm>();
+            CreateMap<FamilyTask, TaskVm>();
         }
     }
 }

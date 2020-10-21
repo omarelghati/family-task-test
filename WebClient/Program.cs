@@ -12,6 +12,7 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using WebClient.Abstractions;
 using WebClient.Services;
+using Plk.Blazor.DragDrop;
 
 namespace WebClient
 {
@@ -36,13 +37,15 @@ namespace WebClient
             builder.Services.AddHttpClient("FamilyTaskAPI", client => client.BaseAddress = new Uri("https://localhost:5001/api/"));
             builder.Services.AddSingleton<IMemberDataService, MemberDataService>();
             builder.Services.AddSingleton<ITaskDataService, TaskDataService>();
+            builder.Services.AddSingleton<DragAndDropService>();
+            builder.Services.AddBlazorDragDrop();
 
             var host = builder.Build();
 
             host.Services
             .UseBootstrapProviders()
             .UseFontAwesomeIcons();
-
+            
             await host.RunAsync();
         }
     }

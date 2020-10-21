@@ -24,15 +24,47 @@ namespace Core.Extensions.ModelConversion
             return command;
         }
 
+        public static CreateTaskCommand ToCreateTaskCommand(this TaskVm model)
+        {
+            return new CreateTaskCommand
+            {
+                Subject = model.Subject,
+                AssignedMemberId = model.AssignedMemberId,
+                IsComplete = model.IsComplete
+            };
+        }
+        public static UpdateTaskCommand ToUpdateTaskCommand(this TaskVm model)
+        {
+            return new UpdateTaskCommand
+            {
+                Id = model.Id,
+                Subject = model.Subject,
+                AssignedMemberId = model.AssignedMemberId,
+                IsComplete = model.IsComplete
+            };
+        }
+
+
         public static MenuItem[] ToMenuItems(this IEnumerable<MemberVm> models)
         {
-            return models.Select(m => new MenuItem()
+            var result = new List<MenuItem>
+            {
+                new MenuItem
+                {
+                    isActive = true,
+                    label = "All tasks"
+                }
+            };
+
+            result.AddRange(models.Select(m => new MenuItem()
             {
                 iconColor = m.Avatar,
                 isActive = false,
                 label = $"{m.LastName}, {m.FirstName}",
                 referenceId = m.Id
-            }).ToArray();
+            }));
+
+            return result.ToArray();
         }
 
         public static UpdateMemberCommand ToUpdateMemberCommand(this MemberVm model)

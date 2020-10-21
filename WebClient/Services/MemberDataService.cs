@@ -11,6 +11,7 @@ using WebClient.Abstractions;
 using Microsoft.AspNetCore.Components;
 using Domain.ViewModel;
 using Core.Extensions.ModelConversion;
+using Core.Extensions;
 
 namespace WebClient.Services
 {
@@ -20,12 +21,12 @@ namespace WebClient.Services
         public MemberDataService(IHttpClientFactory clientFactory)
         {
             httpClient = clientFactory.CreateClient("FamilyTaskAPI");
-            members = new List<MemberVm>();
+            Members = new List<MemberVm>();
             LoadMembers();
         }
-        private IEnumerable<MemberVm> members;
+        //private IEnumerable<MemberVm> members;
 
-        public IEnumerable<MemberVm> Members => members;
+        public List<MemberVm> Members { get; private set; }
 
         public MemberVm SelectedMember { get; private set; }
 
@@ -36,12 +37,17 @@ namespace WebClient.Services
 
         private async void LoadMembers()
         {
-            members = (await GetAllMembers()).Payload;
-            MembersChanged?.Invoke(this, null);
+            var temp = (await GetAllMembers()).Payload.ToList();
+
+            if(Members.NotNull() && temp.Count != Members.Count)
+            {
+                Members = temp;
+                MembersChanged?.Invoke(this, null);
+            }
         }
 
         private async Task<CreateMemberCommandResult> Create(CreateMemberCommand command)
-        {            
+        {
             return await httpClient.PostJsonAsync<CreateMemberCommandResult>("members", command);
         }
 
@@ -61,13 +67,13 @@ namespace WebClient.Services
 
             Console.WriteLine(JsonSerializer.Serialize(result));
 
-            if(result != null)
+            if (result != null)
             {
-                var updatedList = (await GetAllMembers()).Payload;
+                var updatedList = (await GetAllMembers()).Payload.ToList();
 
-                if(updatedList != null)
+                if (updatedList != null)
                 {
-                    members = updatedList;
+                    Members = updatedList;
                     MembersChanged?.Invoke(this, null);
                     return;
                 }
@@ -86,7 +92,7 @@ namespace WebClient.Services
 
                 if (updatedList != null)
                 {
-                    members = updatedList;
+                    Members = updatedList.ToList();
                     MembersChanged?.Invoke(this, null);
                     return;
                 }
@@ -98,9 +104,9 @@ namespace WebClient.Services
 
         public void SelectMember(Guid id)
         {
-            if (members.All(memberVm => memberVm.Id != id)) return;
+            if (Members.All(memberVm => memberVm.Id != id)) return;
             {
-                SelectedMember = members.SingleOrDefault(memberVm => memberVm.Id == id);
+                SelectedMember = Members.SingleOrDefault(memberVm => memberVm.Id == id);
                 SelectedMemberChanged?.Invoke(this, null);
             }
         }

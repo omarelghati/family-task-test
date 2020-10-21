@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{ae77dcd7-4af5-4393-a819-9fb389fb0d55}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.SqlAzureV12DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -61,11 +61,13 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\tables\Member.sql" />
+    <Build Include="dbo\tables\Task.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Sql.publish.xml" />
+    <None Include="OmarsMachine.publish.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dbo\tables\Task.sql" />
+    <RefactorLog Include="Sql.refactorlog" />
   </ItemGroup>
 </Project>
